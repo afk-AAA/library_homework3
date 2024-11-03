@@ -136,9 +136,35 @@ public:
         cout << "請輸入借閱者姓名: ";
         cin >> ws;
         getline(cin, newBorrower.name); // 讀取借閱者姓名
+
+        // 循環讓用戶添加借的書籍編號
+        string bookId;
+        while (true) {
+            cout << "請輸入要借的圖書編號 (按 0 結束): ";
+            cin >> bookId;
+
+            if (bookId == "0") {
+                break; // 如果用戶按 0，則結束輸入
+            }
+
+            // 驗證圖書編號是否存在
+            auto it = find_if(books.begin(), books.end(), [&bookId](const Book& book) {
+                return book.id == bookId; // 查找是否存在該編號的書籍
+                });
+
+            if (it != books.end()) {
+                newBorrower.borrowedBooks.push_back(bookId); // 將有效的書籍編號加入借閱者的借書列表
+                cout << "已添加圖書編號: " << bookId << endl;
+            }
+            else {
+                cout << "未找到該圖書編號，請再試一次。" << endl; // 提示用戶書籍編號無效
+            }
+        }
+
         borrowers.push_front(newBorrower); // 將新借閱者添加到列表
         cout << "借閱者添加成功！" << endl;
     }
+
 
     // 刪除借閱者
     void removeBorrower() {
@@ -163,18 +189,30 @@ public:
     void searchBorrower() {
         string name;
         cout << "請輸入要搜索的借閱者姓名: ";
-        cin >> ws;
-        getline(cin, name);
+        cin >> ws; // 丟棄前導空白
+        getline(cin, name); // 讀取借閱者姓名
 
         // 查找借閱者
         for (const auto& borrower : borrowers) {
             if (borrower.name == name) {
                 cout << "找到借閱者: " << borrower.name << endl; // 顯示借閱者姓名
-                return;
+
+                // 顯示借閱者所借的圖書編號
+                if (borrower.borrowedBooks.empty()) {
+                    cout << "該借閱者目前沒有借閱任何圖書。" << endl;
+                }
+                else {
+                    cout << "借閱的圖書編號:" << endl;
+                    for (const auto& bookId : borrower.borrowedBooks) {
+                        cout << "圖書編號: " << bookId << endl; // 列出每個圖書編號
+                    }
+                }
+                return; // 找到後返回
             }
         }
         cout << "未找到該借閱者。" << endl; // 未找到借閱者
     }
+
 
     // 列出所有借閱者
     void listBorrowers() {
